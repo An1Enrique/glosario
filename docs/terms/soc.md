@@ -1,7 +1,7 @@
 ---
 title: "SOC (Centro de Operaciones de Seguridad)"
 category: "Operaciones y Monitorización de Seguridad"
-author: "@cibercelia"
+author: "@An1Enrique"
 tags:
   - soc
   - security-operations-center
