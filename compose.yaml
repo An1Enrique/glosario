@@ -1,0 +1,11 @@
+services:
+  glosario:
+    build: .
+    container_name: glosario-ciberseguridad
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/docs
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: mkdocs serve --dev-addr=0.0.0.0:8000

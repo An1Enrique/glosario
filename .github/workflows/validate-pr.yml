@@ -1,0 +1,85 @@
+name: Validar Pull Request de Glosario
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - "hooks/**"
+      - "mkdocs.yml"
+      - "requirements.txt"
+
+jobs:
+  validate-and-build:
+    name: Validar Formato y Compilación de MkDocs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: 📦 Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🔍 Validar metadatos y términos
+        run: |
+          python - << 'EOF'
+          import os
+          import sys
+          import yaml
+          import re
+          from pathlib import Path
+
+          terms_dir = Path("docs/terms")
+          errors = []
+
+          if not terms_dir.exists():
+              print("❌ Error: No existe el directorio docs/terms/")
+              sys.exit(1)
+
+          for md_file in terms_dir.glob("*.md"):
+              if md_file.name.startswith(("_", ".")) or md_file.name == "index.md":
+                  continue
+              
+              # Validar formato kebab-case del nombre
+              if not re.match(r"^[a-z0-9\-]+\.md$", md_file.name):
+                  errors.append(f"El archivo '{md_file.name}' debe usar formato kebab-case (solo minúsculas, números y guiones).")
+
+              content = md_file.read_text(encoding="utf-8")
+              match = re.match(r"^---\s*\n(.*?)\n---\s*\n", content, re.DOTALL)
+              if not match:
+                  errors.append(f"El archivo '{md_file.name}' no tiene frontmatter YAML (bloque inicial entre --- y ---).")
+                  continue
+
+              try:
+                  fm = yaml.safe_load(match.group(1)) or {}
+              except Exception as e:
+                  errors.append(f"Error de sintaxis YAML en '{md_file.name}': {e}")
+                  continue
+
+              required_fields = ["title", "category", "author", "summary", "tags"]
+              for field in required_fields:
+                  if not fm.get(field):
+                      errors.append(f"El archivo '{md_file.name}' no contiene el campo obligatorio '{field}' en su frontmatter.")
+
+          if errors:
+              print("\n🚨 Se encontraron errores en la validación de términos:")
+              for err in errors:
+                  print(f"  - {err}")
+              sys.exit(1)
+          else:
+              print("✅ Todos los términos cumplen con el estándar de metadatos.")
+          EOF
+
+      - name: 🏗️ Compilar sitio web con MkDocs (Modo Estricto)
+        run: |
+          mkdocs build --strict

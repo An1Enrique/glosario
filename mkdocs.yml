@@ -1,0 +1,94 @@
+site_name: "Glosario de Ciberseguridad"
+site_description: "Glosario colaborativo y enciclopedia técnica de ciberseguridad gestionada como código."
+site_author: "Comunidad Educativa de Ciberseguridad"
+repo_name: "cibercelia/glosario"
+repo_url: "https://github.com/cibercelia/glosario"
+edit_uri: "edit/main/docs/"
+
+theme:
+  name: material
+  language: es
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.action.edit
+  palette:
+    # Modo Oscuro (Por defecto para estética de ciberseguridad)
+    - scheme: slate
+      primary: cyan
+      accent: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+    # Modo Claro
+    - scheme: default
+      primary: cyan
+      accent: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    logo: material/shield-lock-outline
+    repo: fontawesome/brands/github
+
+extra_css:
+  - stylesheets/extra.css
+
+hooks:
+  - hooks/generate_glossary_index.py
+
+plugins:
+  - search:
+      lang: es
+  - tags
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - attr_list
+  - md_in_html
+  - def_list
+  - toc:
+      permalink: true
+
+nav:
+  - Inicio: index.md
+  - Términos:
+    - Inyección SQL: terms/sql-injection.md
+    - Zero Trust: terms/zero-trust.md
+  - Guía de Contribución:
+    - Cómo Contribuir: guia-contribucion.md
+    - Plantilla para Términos: plantillas/plantilla-termino.md
